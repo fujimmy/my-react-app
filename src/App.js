@@ -1,13 +1,20 @@
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import React from "react";
-import SurveyForm from "./components/SurveyForm"; // 確保路徑正確
+import SurveyPage from "./components/SurveyForm"; // 確保路徑正確
+import LoginPage from "./components/LoginPage";
+
 
 function App() {
-  return (
-    <div className="App">
-      <h1 className="text-2xl font-bold mb-4">問卷系統</h1>
-      <SurveyForm />
-    </div>
-    
+  const [user, setUser] = useState(null); // 存放登入者資訊
+
+  return (    
+    <Router>
+    <Routes>
+      <Route path="/" element={<LoginPage setUser={setUser} />} />
+      <Route path="/survey" element={<SurveyPage user={user} />} />
+    </Routes>
+  </Router>
   );
 }
 
