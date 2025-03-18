@@ -3,6 +3,8 @@ import { useState } from "react";
 import React from "react";
 import SurveyPage from "./components/SurveyForm"; // 確保路徑正確
 import LoginPage from "./components/LoginPage";
+import SurveyPreview from "./components/SurveyPreview";
+
 
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
     <Routes>
       <Route path="/" element={<LoginPage setUser={setUser} />} />
       <Route path="/survey" element={<SurveyPage user={user} />} />
+      <Route path="/survey-preview" element={<SurveyPreview />} />
+
     </Routes>
   </Router>
   );
