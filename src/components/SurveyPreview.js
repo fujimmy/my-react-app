@@ -7,7 +7,7 @@ const API_URL = "http://10.5.6.174:9101/api/surveys";
 const SurveyPreview = () => {
     const [questions, setQuestions] = useState([]);
     const [adUser, setAdUser] = useState(null);
-    const [answers, setAnswers] = useState({});
+    //const [answers, setAnswers] = useState({});
     const [surveyId, setSurveyId] = useState(null);
 
     const [surveyTitle, setSurveyTitle] = useState("");  // 新增問卷標題 state
@@ -22,22 +22,7 @@ const SurveyPreview = () => {
             setSurveyId(JSON.parse(storedSurvey).surveyId);
         }
     }, []);
-
-    // 🔥 更新使用者的回答
-   /* const handleAnswerChange = (questionId, value, isMultiple = false) => {
-        setAnswers(prevAnswers => {
-            if (isMultiple) {
-                const selectedOptions = prevAnswers[questionId] || [];
-                const updatedOptions = selectedOptions.includes(value)
-                    ? selectedOptions.filter(option => option !== value) // 取消選擇
-                    : [...selectedOptions, value]; // 新增選擇
-
-                return { ...prevAnswers, [questionId]: updatedOptions };
-            } else {
-                return { ...prevAnswers, [questionId]: value };
-            }
-        });
-    };*/
+    
 
      // 🔥 送出問卷，只保留使用者的回答
   const handleSubmit = () => {
@@ -47,7 +32,7 @@ const SurveyPreview = () => {
     }
 
     const finalData = {
-      title: surveyTitle,  
+      QuestionTitle: surveyTitle,  
       creator: adUser,
       surveyid:String(surveyId),
       //adStatus: isValidUser,
@@ -84,6 +69,7 @@ const SurveyPreview = () => {
     return (
         
         <div className="p-4 border rounded shadow-md w-96 bg-white">
+            <h1>Hi,{adUser}</h1>
             <h2 className="text-lg font-bold mb-4">📋 問卷預覽</h2>
              {/* 問卷標題輸入框 */}
              <div className="mb-4">
@@ -127,7 +113,7 @@ const SurveyPreview = () => {
                                         <input
                                             type="checkbox"
                                             value={option}
-                                            checked={answers[q.id]?.includes(option) || false}
+                                           // checked={answers[q.id]?.includes(option) || false}
                                             disabled
                                             //onChange={() => handleAnswerChange(q.id, option, true)}
                                         />

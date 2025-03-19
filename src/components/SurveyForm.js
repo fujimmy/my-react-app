@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const AD_API_URL = "https://10.5.6.174:8982/api/AD/new_emp_chk";
 
+const SURVEY_API_URL = "http://10.5.6.174:9101/api/Lookupsurveys";
+
 const SurveyForm = () => {
   const [questions, setQuestions] = useState([]);
   const [isPreview, setIsPreview] = useState(false);
@@ -12,13 +14,11 @@ const SurveyForm = () => {
   const [localIP, setLocalIP] = useState(null);
   const username = localStorage.getItem('username');
   const navigate = useNavigate();
+  const [surveyTemplates, setSurveyTemplates] = useState([]);
 
-  useEffect(() => {
-    const username = localStorage.getItem("username");
-    if (!username) {
-      navigate("/login"); // 未登入者導回登入頁
-    }
+  useEffect(() => {    
     getLocalIP();
+    fetchSurveyTemplates();
   }, []);
 
   useEffect(() => {
@@ -128,7 +128,6 @@ const SurveyForm = () => {
     setQuestions(questions.filter(q => q.id !== id));
   };
 
-
   // 預覽問卷於分頁
   const handlePreview = (surveyId) => {
     //window.open(`/survey-preview?id=${surveyId}`, '_blank');
@@ -144,6 +143,22 @@ const SurveyForm = () => {
     // 開啟新分頁
     window.open(`/survey-preview?id=${surveyId}`, '_blank');
   };
+
+  // 查看現有問卷於分頁
+  const handleRelease = (surveyId) => {
+    //console.log(surveyId);
+    const surveyData = {
+      username,
+      surveyId
+    };
+    // 將問卷資料存入 sessionStorage
+    sessionStorage.setItem("surveyRelease", JSON.stringify(surveyData));
+
+    // 開啟新分頁
+    window.open(`/survey-release`, '_blank');
+  };
+
+
 
   const handleLogout = () => {
     localStorage.clear(); // 清除所有 localStorage 資料    
@@ -163,28 +178,58 @@ const SurveyForm = () => {
     const seconds = pad(now.getSeconds(), 2);
     const milliseconds = pad(now.getMilliseconds(), 3);  // 毫秒補零
 
-     // 儲存中間結果
+    // 儲存中間結果
     let formattedDate = format
-        .replace("yyyy", year)
-        .replace("MM", month)
-        .replace("dd", day)
-        .replace("hh", hours)
-        .replace("mm", minutes)
-        .replace("ss", seconds);
+      .replace("yyyy", year)
+      .replace("MM", month)
+      .replace("dd", day)
+      .replace("hh", hours)
+      .replace("mm", minutes)
+      .replace("ss", seconds);
 
     // 特別處理 "sss" 不被多次替換
     formattedDate = formattedDate.replace("sss", milliseconds);
     return formattedDate;
   };
 
+  // 取得問卷模板列表
+  const fetchSurveyTemplates = async () => {
+    try {
+      const response = await axios.get(SURVEY_API_URL);
+      //console.log(response);
+      if (response.status === 200) {
+        setSurveyTemplates(response.data);
+      }
+    } catch (error) {
+      console.error("❌ 無法載入問卷模板:", error);
+    }
+  };
 
   return (
     <div className="p-4 border rounded shadow-md w-96 bg-white">
-      <h2 className="text-lg font-bold mb-2">📝 建立問卷</h2>
       <p className="text-sm text-gray-600">IP: {localIP || "NA..."}</p>
       <p className="text-sm text-gray-600">AD 使用者: {username || "載入中..."}</p>
       <p className="text-sm text-gray-600">驗證狀態: {isValidUser ? "✅ 驗證成功" : "❌ 驗證失敗"}</p>
 
+      {/* 現有問卷模板列表 */}
+      <div className="mt-6">
+        <h3 className="text-lg font-bold">📋 現有問卷模板</h3>
+        {surveyTemplates.length === 0 ? (
+          <p className="text-gray-500">目前沒有任何問卷模板。</p>
+        ) : (
+          surveyTemplates.map((template) => (
+            <div key={template.surveyid} className="border-b mb-2 pb-2">
+              <p className="font-semibold">{template.title}</p>
+              <button
+                onClick={() => handleRelease(template.surveyid)}
+                className="text-blue-500 hover:text-blue-700"
+              >
+                查看問卷
+              </button>
+            </div>
+          ))
+        )}
+      </div>
 
       <div>
         <h2 className="text-lg font-bold mb-4">📝 建立問卷</h2>
@@ -248,9 +293,4 @@ const SurveyForm = () => {
     </div>
   );
 };
-
 export default SurveyForm;
-
-/*<button className="bg-green-500 text-white px-3 py-1 rounded" onClick={() => setIsPreview(true)}>
-            預覽問卷
-          </button>*/
