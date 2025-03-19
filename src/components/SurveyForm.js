@@ -17,7 +17,7 @@ const SurveyForm = () => {
     const username = localStorage.getItem("username");
     if (!username) {
       navigate("/login"); // 未登入者導回登入頁
-    }    
+    }
     getLocalIP();
   }, []);
 
@@ -135,7 +135,8 @@ const SurveyForm = () => {
 
     const surveyData = {
       questions,
-      username
+      username,
+      surveyId
     };
     // 將問卷資料存入 sessionStorage
     sessionStorage.setItem("surveyPreview", JSON.stringify(surveyData));
@@ -149,6 +150,33 @@ const SurveyForm = () => {
     window.location.replace("/"); // 強制跳轉，防止返回
 
   };
+
+  const generateTimestamp = (format = "yyyyMMddhhmmsss") => {
+    const now = new Date();
+    const pad = (num, len) => num.toString().padStart(len, '0');  // 補零函式
+
+    const year = now.getFullYear();
+    const month = pad(now.getMonth() + 1, 2);  // 月份補零
+    const day = pad(now.getDate(), 2);
+    const hours = pad(now.getHours(), 2);
+    const minutes = pad(now.getMinutes(), 2);
+    const seconds = pad(now.getSeconds(), 2);
+    const milliseconds = pad(now.getMilliseconds(), 3);  // 毫秒補零
+
+     // 儲存中間結果
+    let formattedDate = format
+        .replace("yyyy", year)
+        .replace("MM", month)
+        .replace("dd", day)
+        .replace("hh", hours)
+        .replace("mm", minutes)
+        .replace("ss", seconds);
+
+    // 特別處理 "sss" 不被多次替換
+    formattedDate = formattedDate.replace("sss", milliseconds);
+    return formattedDate;
+  };
+
 
   return (
     <div className="p-4 border rounded shadow-md w-96 bg-white">
@@ -208,7 +236,8 @@ const SurveyForm = () => {
           + 新增問題
         </button>
         {questions.length > 0 && (
-          <button onClick={() => handlePreview(123)}>預覽問卷</button>
+
+          <button onClick={() => handlePreview(generateTimestamp("MMddhhmmss"))}>預覽問卷</button>
         )}
         <button className="bg-red-500 text-white px-3 py-1 rounded mt-2" onClick={handleLogout}>
           登出
