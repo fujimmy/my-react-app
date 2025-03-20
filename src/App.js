@@ -1,33 +1,54 @@
-import { BrowserRouter as Router, Routes, Route,Navigate } from "react-router-dom";
-import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate , useNavigate} from "react-router-dom";
 import React from "react";
-import SurveyPage from "./components/SurveyForm"; // 確保路徑正確
+import { UserProvider } from './components/UserContext';  // 引入 UserProvider
+import Layout from "./components/Layout"; // 新增 Layout
+import SurveyPage from "./components/SurveyForm"; 
 import LoginPage from "./components/LoginPage";
 import SurveyPreview from "./components/SurveyPreview";
 import SurveyRelease from "./components/SurveyRelease";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-
-
 function App() {
-  const [user, setUser] = useState(null); // 存放登入者資訊
-
   return (
+    <UserProvider>
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage setUser={setUser} />} />
+        <Route path="/" element={<LoginPage />} />
 
-        {/* 受保護的頁面（登入後才能進入） */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/survey" element={<SurveyPage user={user} />} />
-          <Route path="/survey-preview" element={<SurveyPreview />} />
-          <Route path="/survey-release" element={<SurveyRelease />} />
+        {/* 受保護的頁面，嵌套在 Layout 內 */}
+        
+        <Route element={<ProtectedRoute/>}>        
+          <Route
+            path="/survey"
+            element={
+              <Layout>
+                <SurveyPage/>
+              </Layout>
+            }
+          />
+          <Route
+            path="/survey-preview"
+            element={
+              <Layout>
+                <SurveyPreview />
+              </Layout>
+            }
+          />
+          <Route
+            path="/survey-release"
+            element={
+              <Layout>
+                <SurveyRelease />
+              </Layout>
+            }
+          />
         </Route>
 
-         {/* 404 頁面 */}
-         <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 404 頁面 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
+    </UserProvider>
   );
 }
 

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-
+import { useUser } from "./UserContext"; // 引入 UserContext
 const API_URL = "http://10.5.6.174:9101/api/surveys";
 
 
 
 const SurveyPreview = () => {
     const [questions, setQuestions] = useState([]);
-    const [adUser, setAdUser] = useState(null);
+    const { user, setUser } =useUser(); // 使用 UserContext
     //const [answers, setAnswers] = useState({});
     const [surveyId, setSurveyId] = useState(null);
-
+    
     const [surveyTitle, setSurveyTitle] = useState("");  // 新增問卷標題 state
 
 
@@ -17,8 +17,7 @@ const SurveyPreview = () => {
         // 從 sessionStorage 讀取問卷資料
         const storedSurvey = sessionStorage.getItem("surveyPreview");
         if (storedSurvey) {
-            setQuestions(JSON.parse(storedSurvey).questions);
-            setAdUser(JSON.parse(storedSurvey).username);
+            setQuestions(JSON.parse(storedSurvey).questions);            
             setSurveyId(JSON.parse(storedSurvey).surveyId);
         }
     }, []);
@@ -33,7 +32,7 @@ const SurveyPreview = () => {
 
         const finalData = {
             title: surveyTitle,
-            creator: adUser,
+            creator: user,
             surveyid: String(surveyId),
             //adStatus: isValidUser,
             questions: questions.map(q => ({
@@ -79,7 +78,7 @@ const SurveyPreview = () => {
     return (
 
         <div className="p-4 border rounded shadow-md w-96 bg-white">
-            <h1>Hi,{adUser}</h1>
+            <h1>Hi,{user}</h1>
             <h2 className="text-lg font-bold mb-4">📋 問卷預覽</h2>
             {/* 問卷標題輸入框 */}
             <div className="mb-4">

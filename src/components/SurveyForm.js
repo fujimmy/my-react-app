@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
+import { useUser } from "./UserContext"; // 引入 UserContext
 
 const AD_API_URL = "https://10.5.6.174:8982/api/AD/new_emp_chk";
 
@@ -8,16 +10,15 @@ const SURVEY_API_URL = "http://10.5.6.174:9101/api/Lookupsurveys";
 const Delete_SURVEY_API_URL = "http://10.5.6.174:9101/api/Deletesurveys";
 
 const SurveyForm = () => {
+  const { user, setUser } =useUser(); // 使用 UserContext
   const [questions, setQuestions] = useState([]);
   const [isPreview, setIsPreview] = useState(false);
-  //const [adUser, setAdUser] = useState(null);
   const [isValidUser, setIsValidUser] = useState(false);
   const [localIP, setLocalIP] = useState(null);
-  const username = localStorage.getItem('username');
   const navigate = useNavigate();
   const [surveyTemplates, setSurveyTemplates] = useState([]);
 
-  useEffect(() => {    
+  useEffect(() => {
     getLocalIP();
     fetchSurveyTemplates();
   }, []);
@@ -32,19 +33,19 @@ const SurveyForm = () => {
 
     try {
       if (localIP.startsWith("192.168.")) { //// 本機測試用
-        console.log("✅ 本機測試成功:", username, ',', localIP);
-        //setAdUser(username);
+        console.log("✅ 本機測試成功:", user, ',', localIP);
+        //setAdUser(user);
         setIsValidUser(true);
       }
       else {
-        const response = await axios.get(`/api/AD/new_emp_chk?acct=${username}`, {
+        const response = await axios.get(`/api/AD/new_emp_chk?acct=${user}`, {
           headers: { "X-Api-Key": "admin" }
         });
         //console.log(response);  
         if (response.status === 200) {
           if (response.data.StatusCode === 409 && response.data.Data.detail === "AD Account Conflict.") {
             console.log("✅ AD 驗證成功:", response.data);
-            //setAdUser(username);
+            //setAdUser(user);
             setIsValidUser(true);
           } else {
             console.error("⚠️ AD 驗證失敗:", '不存在');
@@ -79,7 +80,7 @@ const SurveyForm = () => {
   const addQuestion = () => {
     setQuestions([
       ...questions,
-      { id: Date.now(), text: "", type: "single", options: [""] }
+      { id: uuidv4(), text: "", type: "single", options: [""] }
     ]);
   };
 
@@ -135,31 +136,31 @@ const SurveyForm = () => {
 
     const surveyData = {
       questions,
-      username,
+      user,
       surveyId
     };
     // 將問卷資料存入 sessionStorage
     sessionStorage.setItem("surveyPreview", JSON.stringify(surveyData));
 
     // 開啟新分頁
-    window.open(`/survey-preview?id=${surveyId}`, '_blank');
+    //window.open(`/survey-preview?id=${surveyId}`, '_blank');
+    navigate(`/survey-preview?id=${surveyId}`);
   };
 
   // 查看現有問卷於分頁
   const handleRelease = (surveyId) => {
     //console.log(surveyId);
     const surveyData = {
-      username,
+      user,
       surveyId
     };
     // 將問卷資料存入 sessionStorage
     sessionStorage.setItem("surveyRelease", JSON.stringify(surveyData));
 
     // 開啟新分頁
-    window.open(`/survey-release`, '_blank');
+    navigate('/survey-release');
+    //window.open(`/survey-release`, '_blank');
   };
-
-
 
   const handleLogout = () => {
     localStorage.clear(); // 清除所有 localStorage 資料    
@@ -206,26 +207,26 @@ const SurveyForm = () => {
     }
   };
 
-   // 新增刪除模板的邏輯
-   /*const deleteSurveyTemplate = async (surveyId) => {
-    try {
-      const response = await axios.delete(`${Delete_SURVEY_API_URL}/${surveyId}`);
-      if (response.status === 200) {
-        console.log("問卷模板已成功刪除:", surveyId);
-        alert("問卷模板已成功刪除！");
-        // 從本地狀態中移除已刪除的模板
-        setSurveyTemplates(surveyTemplates.filter((template) => template.surveyid !== surveyId));
-      }
-    } catch (error) {
-      console.error("❌ 刪除問卷模板失敗:", error);
-      alert("刪除問卷模板失敗！");
-    }
-  };
+  // 新增刪除模板的邏輯
+  /*const deleteSurveyTemplate = async (surveyId) => {
+   try {
+     const response = await axios.delete(`${Delete_SURVEY_API_URL}/${surveyId}`);
+     if (response.status === 200) {
+       console.log("問卷模板已成功刪除:", surveyId);
+       alert("問卷模板已成功刪除！");
+       // 從本地狀態中移除已刪除的模板
+       setSurveyTemplates(surveyTemplates.filter((template) => template.surveyid !== surveyId));
+     }
+   } catch (error) {
+     console.error("❌ 刪除問卷模板失敗:", error);
+     alert("刪除問卷模板失敗！");
+   }
+ };
 */
   const handleDeleteSurveyTemplate = (surveyId) => {
     // 顯示確認對話框
     const isConfirmed = window.confirm("您確定要刪除這個問卷模板嗎？這個操作無法復原！");
-  
+
     if (isConfirmed) {
       // 發送刪除請求到後端
       fetch(`${Delete_SURVEY_API_URL}/${surveyId}`, {
@@ -243,7 +244,7 @@ const SurveyForm = () => {
         .then(data => {
           console.log("問卷模板已成功刪除:", data);
           alert(`問卷模板 ID: ${surveyId} 已成功刪除！`);
-          
+
           // 重新載入問卷模板列表
           fetchSurveyTemplates();
         })
@@ -259,7 +260,7 @@ const SurveyForm = () => {
   return (
     <div className="p-4 border rounded shadow-md w-96 bg-white">
       <p className="text-sm text-gray-600">IP: {localIP || "NA..."}</p>
-      <p className="text-sm text-gray-600">AD 使用者: {username || "載入中..."}</p>
+      <p className="text-sm text-gray-600">AD 使用者: {user || "載入中..."}</p>
       <p className="text-sm text-gray-600">驗證狀態: {isValidUser ? "✅ 驗證成功" : "❌ 驗證失敗"}</p>
 
       {/* 現有問卷模板列表 */}
@@ -277,8 +278,8 @@ const SurveyForm = () => {
               >
                 查看問卷
               </button>
-               {/* 刪除問卷模板 */}
-               <button
+              {/* 刪除問卷模板 */}
+              <button
                 onClick={() => handleDeleteSurveyTemplate(template.surveyid)}
                 className="text-red-500 hover:text-red-700 ml-4"
               >
@@ -324,12 +325,12 @@ const SurveyForm = () => {
                     )}
                   </div>
                 ))}
-                <button className="bg-blue-500 text-white px-3 py-1 mt-2 rounded" onClick={() => addOption(q.id)}>
+                <button className="bg-blue-500 text-white px-3 py-1 mt-2 rounded" button="true" onClick={() => addOption(q.id)}>
                   + 新增選項
                 </button>
               </div>
             )}
-            <button className="bg-red-500 text-white px-3 py-1 mt-2 rounded" onClick={() => removeQuestion(q.id)}>
+            <button className="bg-red-500 text-white px-3 py-1 mt-2 rounded" button="true" onClick={() => removeQuestion(q.id)}>
               刪除問題
             </button>
           </div>

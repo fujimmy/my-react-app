@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useUser } from "./UserContext"; // 引入 UserContext
 
 const SURVEY_API_URL = "http://10.5.6.174:9101/api/Getsurveys";
 const WriteAnswers_API_URL = "http://10.5.6.174:9101/api/Writesurvey";
 
 
-const SurveyRelease = () => {
-    const [adUser, setAdUser] = useState(null);
-    const [answers, setAnswers] = useState({});
+const SurveyRelease = () => {   
+    const { user, setUser } =useUser(); // 使用 UserContext
     const [survey_Id, setSurveyId] = useState(null);
     const [survey, setSurvey] = useState(null);
     const [responses, setResponses] = useState({});
-    const [error, setError] = useState(null);
+    const [error, setError] = useState(null);    
 
     useEffect(() => {
         // 從 sessionStorage 讀取問卷資料
         const storedSurvey = sessionStorage.getItem("surveyRelease");
         if (storedSurvey) {
-            //console.log(storedSurvey)
-            setAdUser(JSON.parse(storedSurvey).username);
+            //console.log(storedSurvey)           
             setSurveyId(JSON.parse(storedSurvey).surveyId);
 
         }
@@ -163,7 +162,7 @@ const SurveyRelease = () => {
     const handleSubmit = () => {
         const finalData = {
             questiontitle: survey.title,
-            filler: adUser,
+            filler: user,
             surveyid: String(survey_Id),
             answers: Object.keys(responses).map((questionId) => {
                 const { questionText, answervalue } = responses[questionId];
@@ -203,7 +202,7 @@ const SurveyRelease = () => {
 
     return (
         <div className="p-6 max-w-lg mx-auto bg-white rounded-lg shadow">
-            <h1>Hi,{adUser}</h1>
+            <h1>Hi,{user}</h1>
             <h2 className="text-xl font-bold mb-4">{survey.title}</h2>
             <p className="text-gray-600 mb-4">由 {survey.creator} 建立</p>
 
