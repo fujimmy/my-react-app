@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const SURVEY_API_URL = "http://10.5.6.174:9101/api/Getsurveys";
+const WriteAnswers_API_URL = "http://10.5.6.174:9101/api/Writesurvey";
 
 
 const SurveyRelease = () => {
@@ -162,7 +163,7 @@ const SurveyRelease = () => {
     const handleSubmit = () => {
         const finalData = {
             questiontitle: survey.title,
-            creator:adUser,
+            filler: adUser,
             surveyid: String(survey_Id),
             answers: Object.keys(responses).map((questionId) => {
                 const { questionText, answervalue } = responses[questionId];
@@ -174,6 +175,30 @@ const SurveyRelease = () => {
             })
         };
         console.log("📤 問卷結構 JSON:", JSON.stringify(finalData, null, 2));
+        // 送出答案到API
+        fetch(WriteAnswers_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(finalData),
+        })
+            .then(async response => {
+                if (!response.ok) {
+                    const errorText = await response.text(); // 取得後端錯誤訊息
+                    throw new Error(errorText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                alert(data);
+            })
+            .catch(error => {
+                console.error("儲存問卷時出錯:", error);
+                const errorMessage = error.message.replace(/^"|"$/g, ''); //因為json回傳會帶雙引號 '"您已經填寫過問卷了"',去掉前後的雙引號
+                alert(errorMessage);
+            });
     }
 
     return (

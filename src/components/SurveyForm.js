@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const AD_API_URL = "https://10.5.6.174:8982/api/AD/new_emp_chk";
 
 const SURVEY_API_URL = "http://10.5.6.174:9101/api/Lookupsurveys";
+const Delete_SURVEY_API_URL = "http://10.5.6.174:9101/api/Deletesurveys";
 
 const SurveyForm = () => {
   const [questions, setQuestions] = useState([]);
@@ -205,6 +206,56 @@ const SurveyForm = () => {
     }
   };
 
+   // 新增刪除模板的邏輯
+   /*const deleteSurveyTemplate = async (surveyId) => {
+    try {
+      const response = await axios.delete(`${Delete_SURVEY_API_URL}/${surveyId}`);
+      if (response.status === 200) {
+        console.log("問卷模板已成功刪除:", surveyId);
+        alert("問卷模板已成功刪除！");
+        // 從本地狀態中移除已刪除的模板
+        setSurveyTemplates(surveyTemplates.filter((template) => template.surveyid !== surveyId));
+      }
+    } catch (error) {
+      console.error("❌ 刪除問卷模板失敗:", error);
+      alert("刪除問卷模板失敗！");
+    }
+  };
+*/
+  const handleDeleteSurveyTemplate = (surveyId) => {
+    // 顯示確認對話框
+    const isConfirmed = window.confirm("您確定要刪除這個問卷模板嗎？這個操作無法復原！");
+  
+    if (isConfirmed) {
+      // 發送刪除請求到後端
+      fetch(`${Delete_SURVEY_API_URL}/${surveyId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("刪除問卷模板時出現錯誤");
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("問卷模板已成功刪除:", data);
+          alert(`問卷模板 ID: ${surveyId} 已成功刪除！`);
+          
+          // 重新載入問卷模板列表
+          fetchSurveyTemplates();
+        })
+        .catch(error => {
+          console.error("刪除問卷模板時出錯:", error);
+          alert("刪除問卷模板失敗！請稍後再試");
+        });
+    } else {
+      console.log("取消刪除操作");
+    }
+  };
+
   return (
     <div className="p-4 border rounded shadow-md w-96 bg-white">
       <p className="text-sm text-gray-600">IP: {localIP || "NA..."}</p>
@@ -225,6 +276,13 @@ const SurveyForm = () => {
                 className="text-blue-500 hover:text-blue-700"
               >
                 查看問卷
+              </button>
+               {/* 刪除問卷模板 */}
+               <button
+                onClick={() => handleDeleteSurveyTemplate(template.surveyid)}
+                className="text-red-500 hover:text-red-700 ml-4"
+              >
+                刪除
               </button>
             </div>
           ))
