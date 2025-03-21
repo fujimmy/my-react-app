@@ -4,26 +4,38 @@ import { TextField, Button, Typography, Box } from "@mui/material";  // 引入 M
 import { useUser } from './UserContext';  // 引入 useUser hook
 
 const LoginPage = () => {
-  const [account, setAccount] = useState("");
-  const [password, setPassword] = useState("");
+  const [account, setAccount] = useState(null);
+  const [password, setPassword] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate(); // 取得 `navigate` 函數
-  const {  user, setUser } = useUser();
+  const { user, setUser } = useUser();
+  const [loading, setLoading] = useState(false);
 
-   // 監聽 user 狀態變化，一旦 user 被設置，就跳轉頁面
-   useEffect(() => {
+
+  // 監聽 user 狀態變化，一旦 user 被設置，就跳轉頁面
+  useEffect(() => {
     if (user) {
-      console.log("user 更新，跳轉到 survey 頁面:"+user);
-      navigate('/survey'); // 當 user 更新後跳轉到 survey 頁面
+      console.log("user 更新，跳轉到 survey 頁面:" + user);
+      navigate("/survey", { replace: true });// 當 user 更新後跳轉到 survey 頁面
     }
   }, [user, navigate]); // 當 user 更新時觸發
 
+  /*useEffect(() => {
+    const storedUser = localStorage.getItem("username");
+    if (storedUser) {
+        setUser(storedUser);
+    }
+}, []);*/
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
     const data = { account, password };
 
     try {
-      const response = await fetch("http://10.5.6.174:9101/api/AD/Login", {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+      const response = await fetch(`${API_BASE_URL}/api/AD/Login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,6 +44,10 @@ const LoginPage = () => {
         body: JSON.stringify(data),
         credentials: "include",
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
       const result = await response.json();
       //console.log("登入結果:", result);
@@ -48,6 +64,9 @@ const LoginPage = () => {
       console.error("登入錯誤:", error);
       setErrorMessage("登入失敗，請稍後再試");
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,7 +78,7 @@ const LoginPage = () => {
             label="帳號"
             variant="outlined"
             fullWidth
-            value={account}
+            value={account||""}
             onChange={(e) => setAccount(e.target.value)}
             required
             sx={{ mb: 2 }}
@@ -80,8 +99,9 @@ const LoginPage = () => {
             color="primary"
             fullWidth
             sx={{ mb: 2 }}
+            disabled={loading}
           >
-            登入
+             {loading ? "登入中..." : "登入"}
           </Button>
           {errorMessage && (
             <Typography color="error" textAlign="center">{errorMessage}</Typography>

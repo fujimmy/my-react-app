@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useUser } from "./UserContext"; // 引入 UserContext
-const API_URL = "http://10.5.6.174:9101/api/surveys";
 
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_URL = `${API_BASE_URL}/api/surveys`;
 
 const SurveyPreview = () => {
     const [questions, setQuestions] = useState([]);
@@ -11,7 +11,6 @@ const SurveyPreview = () => {
     const [surveyId, setSurveyId] = useState(null);
     
     const [surveyTitle, setSurveyTitle] = useState("");  // 新增問卷標題 state
-
 
     useEffect(() => {
         // 從 sessionStorage 讀取問卷資料
@@ -161,8 +160,6 @@ const SurveyPreview = () => {
             </button>
         </div>
     );
-
-
 };
 
 export default SurveyPreview;

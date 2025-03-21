@@ -4,21 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from "./UserContext"; // 引入 UserContext
 
-const AD_API_URL = "https://10.5.6.174:8982/api/AD/new_emp_chk";
+//const AD_API_URL = "https://10.5.6.174:8982/api/AD/new_emp_chk";
 
-const SURVEY_API_URL = "http://10.5.6.174:9101/api/Lookupsurveys";
-const Delete_SURVEY_API_URL = "http://10.5.6.174:9101/api/Deletesurveys";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const SURVEY_API_URL = `${API_BASE_URL}/api/Lookupsurveys`;
+const Delete_SURVEY_API_URL = `${API_BASE_URL}/api/Deletesurveys`;
 
 const SurveyForm = () => {
   const { user, setUser } =useUser(); // 使用 UserContext
   const [questions, setQuestions] = useState([]);
-  const [isPreview, setIsPreview] = useState(false);
   const [isValidUser, setIsValidUser] = useState(false);
   const [localIP, setLocalIP] = useState(null);
   const navigate = useNavigate();
   const [surveyTemplates, setSurveyTemplates] = useState([]);
 
   useEffect(() => {
+    //console.log("SurveyPage 已載入");
     getLocalIP();
     fetchSurveyTemplates();
   }, []);
@@ -30,7 +31,6 @@ const SurveyForm = () => {
   }, [localIP]); // 當 localIP 變更時才執行 fetchADUser()
 
   const fetchADUser = async () => {
-
     try {
       if (localIP.startsWith("192.168.")) { //// 本機測試用
         console.log("✅ 本機測試成功:", user, ',', localIP);
@@ -162,11 +162,11 @@ const SurveyForm = () => {
     //window.open(`/survey-release`, '_blank');
   };
 
-  const handleLogout = () => {
+ /* const handleLogout = () => {
     localStorage.clear(); // 清除所有 localStorage 資料    
     window.location.replace("/"); // 強制跳轉，防止返回
 
-  };
+  };*/
 
   const generateTimestamp = (format = "yyyyMMddhhmmsss") => {
     const now = new Date();
@@ -342,14 +342,13 @@ const SurveyForm = () => {
         {questions.length > 0 && (
 
           <button onClick={() => handlePreview(generateTimestamp("MMddhhmmss"))}>預覽問卷</button>
-        )}
-        <button className="bg-red-500 text-white px-3 py-1 rounded mt-2" onClick={handleLogout}>
-          登出
-        </button>
-
-
+        )}     
       </div>
     </div>
   );
 };
 export default SurveyForm;
+
+/* <button className="bg-red-500 text-white px-3 py-1 rounded mt-2" onClick={handleLogout}>
+          登出
+        </button> */

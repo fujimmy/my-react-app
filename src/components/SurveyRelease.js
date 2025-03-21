@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "./UserContext"; // 引入 UserContext
 
-const SURVEY_API_URL = "http://10.5.6.174:9101/api/Getsurveys";
-const WriteAnswers_API_URL = "http://10.5.6.174:9101/api/Writesurvey";
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const SURVEY_API_URL = `${API_BASE_URL}/api/Getsurveys`;
+const WriteAnswers_API_URL = `${API_BASE_URL}/api/Writesurvey`;
 
 const SurveyRelease = () => {   
     const { user, setUser } =useUser(); // 使用 UserContext
@@ -19,7 +19,6 @@ const SurveyRelease = () => {
         if (storedSurvey) {
             //console.log(storedSurvey)           
             setSurveyId(JSON.parse(storedSurvey).surveyId);
-
         }
     }, []);
 
