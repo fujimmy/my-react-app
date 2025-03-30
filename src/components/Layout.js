@@ -1,5 +1,7 @@
-import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, Button, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemText, CssBaseline, Box, ListItemButton, Button, IconButton,Collapse } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 import { Link, useNavigate, Outlet } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -12,6 +14,8 @@ const Layout = () => {
     const navigate = useNavigate();  // 使用 useNavigate
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(true);
+    const [surveyOpen, setSurveyOpen] = useState(false);
+
 
     //console.log("Current user:", user);  // 查看當前用戶狀態
 
@@ -37,6 +41,10 @@ const Layout = () => {
         navigate("/"); // 導航回到登錄頁面
     };
 
+    const toggleSurveyMenu = () => {
+        setSurveyOpen(!surveyOpen);
+    };
+    
     return (
         <Box component="main" sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px` }}>
             <CssBaseline />
@@ -44,7 +52,12 @@ const Layout = () => {
             {/* 頂部的 AppBar */}
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6"
+    noWrap
+    component={Link}
+    to="/mainpage"
+    sx={{ flexGrow: 1, textDecoration: "none", color: "white", cursor: "pointer" }}>
+                        {/* <Link to="/mainpage" style={{ textDecoration: 'none', color: 'white' }}>我的系統</Link> */}
                         我的系統
                     </Typography>
                     <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
@@ -78,11 +91,28 @@ const Layout = () => {
                         <MenuIcon />
                     </IconButton>
                 </Toolbar>
-                <List>
-                    <ListItemButton component={Link} to="/survey">
-                        <ListItemText primary="問卷調查" />
-                    </ListItemButton >
+               <List>
+                    {/* 問卷專區（可收折） */}
+                    <ListItemButton onClick={toggleSurveyMenu}>
+                        <ListItemText primary="問卷專區" />
+                        {surveyOpen ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                    <Collapse in={surveyOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                        <ListItemButton component={Link} to="survey" sx={{ pl: 4 }}>
+                                <ListItemText primary="問卷Moniter" />
+                            </ListItemButton>
+                            <ListItemButton component={Link} to="survey-pending" sx={{ pl: 4 }}>
+                                <ListItemText primary="待填問卷" />
+                            </ListItemButton>
+                            <ListItemButton component={Link} to="survey-create" sx={{ pl: 4 }}>
+                                <ListItemText primary="建立問卷" />
+                            </ListItemButton>
+                        </List>
+                    </Collapse>
                 </List>
+
+
             </Drawer>
 
             {/* 主要內容區域 */}

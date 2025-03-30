@@ -16,7 +16,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (user) {
       console.log("user 更新，跳轉到 survey 頁面:" + user);
-      navigate("/survey", { replace: true });// 當 user 更新後跳轉到 survey 頁面
+      navigate("/mainpage", { replace: true });// 當 user 更新後跳轉到 survey 頁面
     }
   }, [user, navigate]); // 當 user 更新時觸發
 
