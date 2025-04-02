@@ -108,6 +108,9 @@ const Layout = () => {
                             <ListItemButton component={Link} to="survey-create" sx={{ pl: 4 }}>
                                 <ListItemText primary="建立問卷" />
                             </ListItemButton>
+                            <ListItemButton component={Link} to="survey-completed" sx={{ pl: 4 }}>
+                                <ListItemText primary="已填問卷" />
+                            </ListItemButton>
                         </List>
                     </Collapse>
                 </List>

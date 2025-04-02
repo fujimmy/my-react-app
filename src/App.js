@@ -9,6 +9,8 @@ import SurveyPreview from "./components/SurveyPreview";
 import SurveyRelease from "./components/SurveyRelease";
 import SurveyCreate from "./components/SurveyCreate";
 import Surveypending from "./components/Surveypending";
+import SurveyCompleted from "./components/SurveyCompleted";
+import SurveyAnswer  from "./components/SurveyAnswer";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
             <Route path="survey-preview" element={<SurveyPreview />} />
             <Route path="survey-release" element={<SurveyRelease />} />
             <Route path="survey-create" element={<SurveyCreate />} />
+            <Route path="survey-completed" element={<SurveyCompleted />} />
+            <Route path="survey-answer" element={<SurveyAnswer />} />           
           </Route>
           
         </Routes>
