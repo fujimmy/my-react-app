@@ -176,7 +176,7 @@ const SurveyAnswer = () => {
     return (
         <div className="p-6 max-w-lg mx-auto bg-white rounded-lg shadow">
             <h3>以下是您回答過的問卷</h3>            
-            <h2 className="text-xl font-bold mb-4">{survey.title}</h2>
+            <h2 className="text-xl font-bold mb-4">{survey.questionTitle}</h2>
             <p>填寫時間:{answerGlobal&&answerGlobal.creationTime}</p>
             <p className="text-gray-600 mb-4">由 {survey.creator} 建立</p>
             {survey.questions && survey.questions.map((question) => renderQuestion(question))}

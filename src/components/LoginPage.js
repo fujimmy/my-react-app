@@ -11,6 +11,33 @@ const LoginPage = () => {
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const storedUserStr = localStorage.getItem("user");
+    if (storedUserStr) {
+      try {
+        const parsed = JSON.parse(storedUserStr);
+        const expiry = parsed.expiry; // 取得過期時間
+        const now = new Date().getTime();
+
+        const nowReadable = new Date(now).toLocaleString();
+        const expiryReadable = new Date(parsed.expiry).toLocaleString();
+        
+        console.log("現在時間:", nowReadable);
+        console.log("過期時間:", expiryReadable);
+
+        if (now < expiry) {
+          setUser(parsed.username);  // ✅ 設定到 context
+          navigate("/mainpage", { replace: true });  // ✅ 自動跳轉
+        } else {
+          localStorage.removeItem("user");  // ❌ 已過期就清除
+        }
+      } catch (e) {
+        console.error("解析 localStorage user 發生錯誤", e);
+        localStorage.removeItem("user");
+      }
+    }
+  }, [setUser, navigate]);
+
 
   // 監聽 user 狀態變化，一旦 user 被設置，就跳轉頁面
   useEffect(() => {
@@ -20,12 +47,6 @@ const LoginPage = () => {
     }
   }, [user, navigate]); // 當 user 更新時觸發
 
-  /*useEffect(() => {
-    const storedUser = localStorage.getItem("username");
-    if (storedUser) {
-        setUser(storedUser);
-    }
-}, []);*/
 
   const handleSubmit = async (e) => {
     e.preventDefault();

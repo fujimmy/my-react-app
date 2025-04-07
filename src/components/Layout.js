@@ -20,9 +20,10 @@ const Layout = () => {
     //console.log("Current user:", user);  // 查看當前用戶狀態
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(storedUser);  // ✅ 讀取 localStorage
+        const localstoredUser = localStorage.getItem("user");
+        if (localstoredUser) {
+            const storedUser = JSON.parse(localstoredUser);
+            setUser(storedUser.username);  // ✅ 讀取 localStorage
         } else {
             navigate("/"); // ✅ 沒有登入就導回首頁
         }
